@@ -1,0 +1,5 @@
+# Ignore Python compiled bytecode
+*.pyc
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
