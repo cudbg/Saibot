@@ -340,3 +340,50 @@ def unbiased_est(cov, buyer_columns, seller_columns, d, n):
         cov[name] = cov[name]/cov['cov:c']
     cov['cov:c'] = 1
     return cov
+
+def create_sets(data):
+    sets = []
+    for s in data['col2']:
+        sets.append(set(s.split()))
+    return sets
+
+def hash_sets(sets, num_hashes=128):
+    num_sets = len(sets)
+    num_words = max([len(s) for s in sets])
+    signature = np.zeros((num_sets, num_hashes))
+    for i in range(num_hashes):
+        a = np.random.randn(num_words, 1)
+        b = np.random.uniform(0, 1, size=(num_words, 1))
+        for j, s in enumerate(sets):
+            hashed = [int(hash(word.encode('utf-8')) * a + b) for word in s]
+            signature[j, i] = min(hashed)
+    return signature
+
+def build_lsh_table(signature, num_bands=32, band_size=4):
+    num_rows = signature.shape[0]
+    lsh_table = {}
+    for i in range(num_bands):
+        band = signature[:, i*band_size:(i+1)*band_size]
+        for j in range(band.shape[1]):
+            band_slice = band[:, j]
+            band_slice_str = ' '.join(map(str, band_slice))
+            if band_slice_str in lsh_table:
+                lsh_table[band_slice_str].append(j)
+            else:
+                lsh_table[band_slice_str] = [j]
+    return lsh_table
+
+def query_lsh_table(query, lsh_table, sets):
+    matches = set()
+    for word in query:
+        hashed = int(hash(word.encode('utf-8')))
+        band_slice_strs = []
+        for i in range(len(lsh_table)):
+            band_slice_strs.append(' '.join(map(str, signature[i, j*band_size:(j+1)*band_size])))
+        if hashed in band_slice_strs:
+            matches.update(lsh_table[band_slice_strs[band_slice_strs.index(hashed)]])
+    similarities = []
+    for i in matches:
+        sim = len(query & sets[i]) / len(query | sets[i])
+        similarities.append((i, sim))
+    return similarities
