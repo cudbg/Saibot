@@ -1,4 +1,6 @@
-# Saibot
+# Saibot VLDB 2023
+
+https://arxiv.org/abs/2307.00432
 
 Recent data search platforms rely on ML task-based utility measures rather than metadata-based keyword search to search among a large corpus of datasets. Users submit a training dataset and  these platforms search for augmentations - join or union-compatible datasets - that, when used to augment the user's dataset, most improve model (e.g., linear regression) performance. Although effective, providers that manage personally identifiable data demand differential privacy (DP) guarantees before allow these platforms access to their data.   Unfortunately, making data search differentially private is nontrivial, as a single search can involve training and evaluating datasets hundreds or thousands of times, and quickly deplete available privacy budgets.  
 
